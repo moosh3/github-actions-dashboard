@@ -1,31 +1,40 @@
-'use client'
-
-import { useRouter } from 'next/compat/router'
-import { useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
+// Define an interface for the workflow details
+interface WorkflowDetails {
+  id: number;
+  name: string;
+  status: string;
+  conclusion: string | null;
+  html_url: string;
+  created_at: string;
+  updated_at: string;
+  head_branch: string;
+  head_sha: string;
+  // Add any other properties you expect from the API
+}
+
 const WorkflowDetailPage = () => {
-  const searchParams = useSearchParams();
-  const runId = searchParams.get('runId');
-  const repo = searchParams.get('repo');
-  const [workflowDetails, setWorkflowDetails] = useState(null);
+  const router = useRouter();
+  const { runId, repo } = router.query;
+  const [workflowDetails, setWorkflowDetails] = useState<WorkflowDetails | null>(null);
 
   useEffect(() => {
-    if (!runId || !repo) {
-      return;
+    if (runId && repo) {
+      fetchWorkflowDetails();
     }
-    fetchWorkflowDetails();
   }, [runId, repo]);
 
   const fetchWorkflowDetails = async () => {
     try {
-      const token = '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'; //process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+      const token = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
       const response = await fetch(`https://api.github.com/repos/${repo}/actions/runs/${runId}`, {
         headers: {
           Authorization: `token ${token}`,
         },
       });
-      const data = await response.json();
+      const data: WorkflowDetails = await response.json();
       setWorkflowDetails(data);
     } catch (error) {
       console.error('Error fetching workflow details:', error);
@@ -45,7 +54,7 @@ const WorkflowDetailPage = () => {
             Run ID: {workflowDetails.id}
           </h3>
           <p className="mt-1 max-w-2xl text-sm text-gray-500">
-            Repository: {repo}
+            Repository: {repo as string}
           </p>
         </div>
         <div className="border-t border-gray-200">
@@ -59,7 +68,7 @@ const WorkflowDetailPage = () => {
             <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Conclusion</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {workflowDetails.conclusion}
+                {workflowDetails.conclusion || 'N/A'}
               </dd>
             </div>
             {/* Add more details as needed */}

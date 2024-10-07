@@ -1,18 +1,17 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import "./globals.css";
-// Import new components
-import Header from "./components/Header";
-import Sidebar from "./components/Sidebar";
-import TelemetryDashboard from "./components/TelemetryDashboard";
+
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+import TelemetryDashboard from "./workflow/page";
 
 const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
+  src: "../fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
 });
 const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
+  src: "../fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
 });

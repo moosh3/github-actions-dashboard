@@ -23,13 +23,9 @@ const TelemetryDashboard: React.FC = () => {
   const [failedRuns, setFailedRuns] = useState(0);
   const [succeededRuns, setSucceededRuns] = useState(0);
 
-  useEffect(() => {
-    fetchWorkflowRuns();
-  }, []);
-
   const fetchRepositories = async () => {
     try {
-      const token = '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'; // process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+      const token = process.env.GITHUB_TOKEN;
       const response = await fetch('https://api.github.com/user/repos', {
         headers: {
           'Authorization': `token ${token}`,
@@ -73,7 +69,7 @@ const TelemetryDashboard: React.FC = () => {
     const repoToFetch = selectedRepo || DEFAULT_REPO;
 
     try {
-    const token = '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'; //process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+    const token = process.env.GITHUB_TOKEN;
       const response = await fetch(`https://api.github.com/repos/${repoToFetch}/actions/runs`, {
         headers: {
           Authorization: `token ${token}`,
