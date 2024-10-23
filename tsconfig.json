@@ -32,8 +32,9 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
-, "app/workflows/[id]/page.js"  ],
+    ".next/types/**/*.ts", 
+    "app/workflows/[id]/page.js"  
+  ],
   "exclude": [
     "node_modules"
   ]
