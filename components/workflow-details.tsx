@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Bar, BarChart, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import { ArrowLeft, ChevronDown, RefreshCcw } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -45,14 +46,15 @@ const durationData = [
 ]
 
 const pipelineExecutions = [
-  { id: 1, date: "Jul 11 15:41:31.000", duration: "36.0 s", commit: "Merge pull request" },
-  { id: 2, date: "Jul 11 15:31:30.000", duration: "29.0 s", commit: "Merge pull request" },
-  { id: 3, date: "Jul 11 15:21:29.000", duration: "32.5 s", commit: "Update dependencies" },
-  { id: 4, date: "Jul 11 15:11:28.000", duration: "30.2 s", commit: "Fix test cases" },
-  { id: 5, date: "Jul 11 15:01:27.000", duration: "28.7 s", commit: "Refactor code" },
+  { id: 1, date: "Jul 11 15:41:31.000", duration: "36.0 s", commit: "Merge pull request", author: "Alice Johnson" },
+  { id: 2, date: "Jul 11 15:31:30.000", duration: "29.0 s", commit: "Merge pull request", author: "Bob Smith" },
+  { id: 3, date: "Jul 11 15:21:29.000", duration: "32.5 s", commit: "Update dependencies", author: "Charlie Brown" },
+  { id: 4, date: "Jul 11 15:11:28.000", duration: "30.2 s", commit: "Fix test cases", author: "Diana Prince" },
+  { id: 5, date: "Jul 11 15:01:27.000", duration: "28.7 s", commit: "Refactor code", author: "Ethan Hunt" },
 ]
 
 export default function WorkflowDetails({ id }: { id: string }) {
+  const router = useRouter()
   const [timeRange, setTimeRange] = useState("7d")
 
   return (
@@ -135,7 +137,7 @@ export default function WorkflowDetails({ id }: { id: string }) {
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Job Summary</CardTitle>
+          <CardTitle>Workflow Summary</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -156,6 +158,20 @@ export default function WorkflowDetails({ id }: { id: string }) {
                 <TableCell>100%</TableCell>
                 <TableCell>4.7%</TableCell>
               </TableRow>
+              <TableRow>
+                <TableCell className="font-medium">lint</TableCell>
+                <TableCell>35.2 s</TableCell>
+                <TableCell>25 s</TableCell>
+                <TableCell>80%</TableCell>
+                <TableCell>0.7%</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-medium">publish</TableCell>
+                <TableCell>35.2 s</TableCell>
+                <TableCell>12 min 25 s</TableCell>
+                <TableCell>100%</TableCell>
+                <TableCell>49.7%</TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         </CardContent>
@@ -163,17 +179,17 @@ export default function WorkflowDetails({ id }: { id: string }) {
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Pipeline Executions</CardTitle>
+          <CardTitle>Workflow Runs</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-[200px] bg-muted" />
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Date</TableHead>
-                <TableHead>Pipeline</TableHead>
+                <TableHead>Branch</TableHead>
                 <TableHead>Duration</TableHead>
                 <TableHead>Commit</TableHead>
+                <TableHead>Author</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -183,6 +199,7 @@ export default function WorkflowDetails({ id }: { id: string }) {
                   <TableCell>main</TableCell>
                   <TableCell>{execution.duration}</TableCell>
                   <TableCell>{execution.commit}</TableCell>
+                  <TableCell>{execution.author}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

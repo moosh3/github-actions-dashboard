@@ -3,9 +3,10 @@
 import { useState } from "react"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import { AlertCircle, CheckCircle2, GitBranch, GitCommit, MoreHorizontal, RefreshCcw } from "lucide-react"
-import Link from "next/link"
+import Link from 'next/link'
+import { useRouter } from "next/navigation"
 
-import { Button } from "@/components/ui/button"
+import { Button, ButtonProps } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   DropdownMenu,
@@ -44,7 +45,7 @@ const chartData = [
 ]
 
 // Mock data for recent actions
-const recentActions = [
+const recentWorkflows = [
   { id: 1, name: "Build and Test", status: "success", branch: "main", commit: "abc123", time: "2 minutes ago" },
   { id: 2, name: "Deploy to Staging", status: "running", branch: "develop", commit: "def456", time: "10 minutes ago" },
   { id: 3, name: "Lint Code", status: "failure", branch: "feature/new-ui", commit: "ghi789", time: "1 hour ago" },
@@ -61,18 +62,38 @@ const repositories = [
 ]
 
 export default function GitHubActionsDashboard() {
+  const router = useRouter()
   const [filter, setFilter] = useState("all")
   const [selectedRepo, setSelectedRepo] = useState(repositories[0].id)
 
-  const filteredActions = recentActions.filter(action => {
+  const filteredActions = recentWorkflows.filter(action => {
     if (filter === "all") return true
     return action.status === filter
   })
 
+  // Function to generate GitHub commit URL
+  const getCommitUrl = (repo: string, commit: string) => {
+    return `https://github.com/your-org/${repo}/commit/${commit}`
+  }
+
+  // Function to generate workflow details URL
+  const getWorkflowDetailsUrl = (actionId: number) => {
+    return `/workflows/${actionId}`
+  }
+
+  // Function to generate workflow logs URL
+  const getWorkflowLogsUrl = (actionId: number) => {
+    return `/workflows/${actionId}/logs`
+  }
+
   return (
     <div className="container mx-auto py-10">
-      <div className="flex flex-col space-y-4 mb-6">
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">GitHub Actions Dashboard</h1>
+        <Button variant="outline" onClick={() => router.push("/")}>Back to Home</Button>
+      </div>
+      
+      <div className="flex flex-col space-y-4 mb-6">
         <Select value={selectedRepo} onValueChange={setSelectedRepo}>
           <SelectTrigger className="w-[300px]">
             <SelectValue placeholder="Select repository" />
@@ -133,7 +154,29 @@ export default function GitHubActionsDashboard() {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Workflow Runs (Last 7 Days)</CardTitle>
-          <CardDescription>A breakdown of successful vs. failed runs</CardDescription>
+          <CardDescription asChild>
+            <div>
+              <div className="flex justify-between items-center">
+                <span>Overview of the most recent GitHub Actions</span>
+                <div className="flex space-x-2">
+                  <Select value={filter} onValueChange={setFilter}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="success">Success</SelectItem>
+                      <SelectItem value="failure">Failure</SelectItem>
+                      <SelectItem value="running">Running</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button variant="outline" size="icon">
+                    <RefreshCcw className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardDescription>
         </CardHeader>
         <CardContent className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
@@ -150,24 +193,26 @@ export default function GitHubActionsDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Recent Actions</CardTitle>
-          <CardDescription>
-            <div className="flex justify-between items-center">
-              <span>Overview of the most recent GitHub Actions</span>
-              <div className="flex space-x-2">
-                <Select value={filter} onValueChange={setFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Filter by status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="success">Success</SelectItem>
-                    <SelectItem value="failure">Failure</SelectItem>
-                    <SelectItem value="running">Running</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button variant="outline" size="icon">
-                  <RefreshCcw className="h-4 w-4" />
-                </Button>
+          <CardDescription asChild>
+            <div>
+              <div className="flex justify-between items-center">
+                <span>Overview of the most recent GitHub Actions</span>
+                <div className="flex space-x-2">
+                  <Select value={filter} onValueChange={setFilter}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="success">Success</SelectItem>
+                      <SelectItem value="failure">Failure</SelectItem>
+                      <SelectItem value="running">Running</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button variant="outline" size="icon">
+                    <RefreshCcw className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </CardDescription>
@@ -203,23 +248,32 @@ export default function GitHubActionsDashboard() {
                   </TableCell>
                   <TableCell>{action.branch}</TableCell>
                   <TableCell>
-                    <span className="flex items-center">
+                    <a
+                      href={getCommitUrl(repositories.find(repo => repo.id === selectedRepo)?.name || '', action.commit)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center text-blue-500 hover:underline"
+                    >
                       <GitCommit className="h-4 w-4 mr-1" />
                       {action.commit.slice(0, 7)}
-                    </span>
+                    </a>
                   </TableCell>
                   <TableCell>{action.time}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>View details</DropdownMenuItem>
-                        <DropdownMenuItem>View logs</DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href={getWorkflowDetailsUrl(action.id)}>View details</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href={getWorkflowLogsUrl(action.id)}>View logs</Link>
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>Re-run</DropdownMenuItem>
                       </DropdownMenuContent>
