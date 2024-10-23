@@ -5,7 +5,9 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import { AlertCircle, CheckCircle2, GitBranch, GitCommit, MoreHorizontal, RefreshCcw } from "lucide-react"
 import Link from 'next/link'
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button, ButtonProps } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -63,6 +65,7 @@ const repositories = [
 
 export default function GitHubActionsDashboard() {
   const router = useRouter()
+  const { data: session } = useSession()
   const [filter, setFilter] = useState("all")
   const [selectedRepo, setSelectedRepo] = useState(repositories[0].id)
 
@@ -90,7 +93,15 @@ export default function GitHubActionsDashboard() {
     <div className="container mx-auto py-10">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">GitHub Actions Dashboard</h1>
-        <Button variant="outline" onClick={() => router.push("/")}>Back to Home</Button>
+        <div className="flex items-center space-x-4">
+          <Button variant="outline" onClick={() => router.push("/")}>Back to Home</Button>
+          {session?.user?.image && (
+            <Avatar className="cursor-pointer" onClick={() => router.push("/user-workflows")}>
+            <AvatarImage src={session.user.image} alt={session.user.name || "User avatar"} />
+            <AvatarFallback>{session.user.name?.charAt(0) || "U"}</AvatarFallback>
+          </Avatar>
+          )}
+        </div>
       </div>
       
       <div className="flex flex-col space-y-4 mb-6">

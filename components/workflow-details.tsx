@@ -5,7 +5,9 @@ import { Bar, BarChart, Line, LineChart, ResponsiveContainer, XAxis, YAxis } fro
 import { ArrowLeft, ChevronDown, RefreshCcw } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -55,6 +57,7 @@ const pipelineExecutions = [
 
 export default function WorkflowDetails({ id }: { id: string }) {
   const router = useRouter()
+  const { data: session } = useSession()
   const [timeRange, setTimeRange] = useState("7d")
 
   return (
@@ -83,6 +86,12 @@ export default function WorkflowDetails({ id }: { id: string }) {
           <Button variant="outline" size="icon">
             <RefreshCcw className="h-4 w-4" />
           </Button>
+          {session?.user?.image && (
+            <Avatar>
+              <AvatarImage src={session.user.image} alt={session.user.name || "User avatar"} />
+              <AvatarFallback>{session.user.name?.charAt(0) || "U"}</AvatarFallback>
+            </Avatar>
+          )}
         </div>
       </div>
 
