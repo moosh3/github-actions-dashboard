@@ -77,15 +77,6 @@ export default function UserWorkflowHistory() {
     <div className="container mx-auto py-10">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Your Workflow History</h1>
-        <div className="flex items-center space-x-4">
-          <Button variant="outline" onClick={() => router.push("/workflows")}>Back to Dashboard</Button>
-          {session?.user?.image && (
-            <Avatar>
-              <AvatarImage src={session.user.image} alt={session.user.name || "User avatar"} />
-              <AvatarFallback>{session.user.name?.charAt(0) || "U"}</AvatarFallback>
-            </Avatar>
-          )}
-        </div>
       </div>
       
       <div className="flex justify-between items-center mb-6">

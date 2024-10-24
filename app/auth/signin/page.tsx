@@ -10,7 +10,7 @@ export default function SignIn() {
   const handleSignIn = async () => {
     try {
       const result = await signIn("github", { 
-        callbackUrl: "/workflows",
+        callbackUrl: "/repositories",
         redirect: false
       })
       console.log('Sign-in result:', result)

@@ -1,13 +1,29 @@
 "use client"
 
 import { useState } from "react"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
-import { ArrowLeft, ChevronDown, RefreshCcw } from "lucide-react"
+import { ArrowLeft, ChevronDown, RefreshCcw, ArrowUpDown, MoreHorizontal } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+//import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -47,30 +63,78 @@ const durationData = [
   { day: "Mon 11", max: 14, p50: 9, p95: 12 },
 ]
 
-const pipelineExecutions = [
-  { id: 1, date: "Jul 11 15:41:31.000", duration: "36.0 s", commit: "Merge pull request", author: "Alice Johnson" },
-  { id: 2, date: "Jul 11 15:31:30.000", duration: "29.0 s", commit: "Merge pull request", author: "Bob Smith" },
-  { id: 3, date: "Jul 11 15:21:29.000", duration: "32.5 s", commit: "Update dependencies", author: "Charlie Brown" },
-  { id: 4, date: "Jul 11 15:11:28.000", duration: "30.2 s", commit: "Fix test cases", author: "Diana Prince" },
-  { id: 5, date: "Jul 11 15:01:27.000", duration: "28.7 s", commit: "Refactor code", author: "Ethan Hunt" },
+// Mock data for demonstration
+const workflowRuns = [
+  {
+    id: "1",
+    name: "CI/CD Pipeline",
+    status: "completed",
+    conclusion: "success",
+    createdAt: "2023-04-15T10:00:00Z",
+    runNumber: 42,
+  },
+  {
+    id: "2",
+    name: "Nightly Tests",
+    status: "completed",
+    conclusion: "failure",
+    createdAt: "2023-04-14T22:00:00Z",
+    runNumber: 41,
+  },
+  {
+    id: "3",
+    name: "Deploy to Production",
+    status: "in_progress",
+    conclusion: null,
+    createdAt: "2023-04-15T11:30:00Z",
+    runNumber: 43,
+  },
+]
+// Mock data for repositories
+const repositories = [
+  { id: "1", name: "main-app" },
+  { id: "2", name: "api-service" },
+  { id: "3", name: "frontend-client" },
+  { id: "4", name: "data-processor" },
 ]
 
-export default function WorkflowDetails({ id }: { id: string }) {
-  const router = useRouter()
+export default function WorkflowDetails({ repoId, workflowId, workflowName }: { repoId: string, workflowId: string, workflowName: string }) {
+  //const router = useRouter()
   const { data: session } = useSession()
   const [timeRange, setTimeRange] = useState("7d")
+  
+  const getRepoNameById = (id: string) => {
+    const repo = repositories.find(repo => repo.id === id)
+    return repo ? repo.name : "Unknown Repository"
+  }
+
+  const repoName = getRepoNameById(repoId)
 
   return (
+    
     <div className="container mx-auto py-10">
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-4">
-          <Link href="/workflows">
-            <Button variant="outline" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <h1 className="text-3xl font-bold">Workflow Details: {id}</h1>
-        </div>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/repositories">Repositories</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href={`/repositories/${repoId}`}>{repoName}</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href={`/workflows/${workflowId}`}>build-and-push</BreadcrumbLink>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <br />
+        
         <div className="flex items-center space-x-4">
           <Select value={timeRange} onValueChange={setTimeRange}>
             <SelectTrigger className="w-[180px]">
@@ -86,60 +150,74 @@ export default function WorkflowDetails({ id }: { id: string }) {
           <Button variant="outline" size="icon">
             <RefreshCcw className="h-4 w-4" />
           </Button>
-          {session?.user?.image && (
-            <Avatar>
-              <AvatarImage src={session.user.image} alt={session.user.name || "User avatar"} />
-              <AvatarFallback>{session.user.name?.charAt(0) || "U"}</AvatarFallback>
-            </Avatar>
-          )}
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3 mb-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Executions</CardTitle>
+      <div className="grid gap-6 md:grid-cols-2 mb-6">
+      <Card>
+          <CardHeader>
+            <CardTitle>Executions</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={executionsData}>
-                <XAxis dataKey="day" />
-                <YAxis />
-                <Bar dataKey="success" stackId="a" fill="#4ade80" />
-                <Bar dataKey="error" stackId="a" fill="#f87171" />
-              </BarChart>
-            </ResponsiveContainer>
+            <ChartContainer
+              config={{
+                success: {
+                  label: "Successful Executions",
+                  color: "hsl(var(--chart-1))",
+                },
+                error: {
+                  label: "Failed Executions",
+                  color: "hsl(var(--chart-2))",
+                },
+              }}
+              className="h-[300px]"
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={executionsData}>
+                  <XAxis dataKey="day" />
+                  <YAxis />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="success" stackId="a" fill="var(--color-success)" />
+                  <Bar dataKey="error" stackId="a" fill="var(--color-error)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
+
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Failure Rate</CardTitle>
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          <CardHeader>
+            <CardTitle>Duration</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={executionsData}>
-                <XAxis dataKey="day" />
-                <YAxis />
-                <Line type="monotone" dataKey="error" stroke="#f87171" />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Build Duration</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={durationData}>
-                <XAxis dataKey="day" />
-                <YAxis />
-                <Line type="monotone" dataKey="max" stroke="#3b82f6" />
-                <Line type="monotone" dataKey="p50" stroke="#10b981" />
-                <Line type="monotone" dataKey="p95" stroke="#f59e0b" />
-              </LineChart>
-            </ResponsiveContainer>
+            <ChartContainer
+              config={{
+                max: {
+                  label: "Max Duration",
+                  color: "hsl(var(--chart-3))",
+                },
+                p95: {
+                  label: "95th Percentile",
+                  color: "hsl(var(--chart-4))",
+                },
+                p50: {
+                  label: "Median",
+                  color: "hsl(var(--chart-5))",
+                },
+              }}
+              className="h-[300px]"
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={durationData}>
+                  <XAxis dataKey="day" />
+                  <YAxis />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Line type="monotone" dataKey="max" stroke="var(--color-max)" />
+                  <Line type="monotone" dataKey="p95" stroke="var(--color-p95)" />
+                  <Line type="monotone" dataKey="p50" stroke="var(--color-p50)" />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
@@ -191,28 +269,65 @@ export default function WorkflowDetails({ id }: { id: string }) {
           <CardTitle>Workflow Runs</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Branch</TableHead>
-                <TableHead>Duration</TableHead>
-                <TableHead>Commit</TableHead>
-                <TableHead>Author</TableHead>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[100px]">Run</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>
+                <Button variant="ghost" className="h-8 w-full justify-start">
+                  Created
+                  <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+              </TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {workflowRuns.map((run) => (
+              <TableRow key={run.id}>
+                <TableCell className="font-medium">
+                  <Link href={`/workflows/${repoId}/runs/${run.id}`} className="text-blue-600 hover:underline">
+                    #{run.runNumber}
+                  </Link>
+                </TableCell>
+                <TableCell>{run.name}</TableCell>
+                <TableCell>
+                  <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    run.status === 'completed'
+                      ? run.conclusion === 'success'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {run.status === 'completed' ? run.conclusion : 'In Progress'}
+                  </div>
+                </TableCell>
+                <TableCell>{new Date(run.createdAt).toLocaleString()}</TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuItem>
+                        <Link href={`/workflow-run/${run.id}`}>View details</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>Download logs</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>Re-run workflow</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {pipelineExecutions.map((execution) => (
-                <TableRow key={execution.id}>
-                  <TableCell>{execution.date}</TableCell>
-                  <TableCell>main</TableCell>
-                  <TableCell>{execution.duration}</TableCell>
-                  <TableCell>{execution.commit}</TableCell>
-                  <TableCell>{execution.author}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+            ))}
+          </TableBody>
+        </Table>
         </CardContent>
       </Card>
     </div>

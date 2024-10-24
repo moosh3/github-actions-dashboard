@@ -1,6 +1,5 @@
 import NextAuth from "next-auth"
 import GithubProvider from "next-auth/providers/github"
-import { Session } from "next-auth"
 
 // Add this type declaration
 declare module "next-auth" {
@@ -12,8 +11,8 @@ declare module "next-auth" {
 const handler = NextAuth({
   providers: [
     GithubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID as string,
-      clientSecret: process.env.GITHUB_CLIENTSECRET as string,
+      clientId: 'Iv23liK9zwGGrdIuHUIF', //process.env.GITHUB_CLIENT_ID as string,
+      clientSecret: '5ee7c05703da8ac060163eff9343e9390d40de97', //process.env.GITHUB_CLIENTSECRET as string,
     }),
   ],
   debug: process.env.NODE_ENV === 'development',

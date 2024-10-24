@@ -33,7 +33,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts", 
-    "app/workflows/[id]/page.js"  
+    "app/workflows/[repoId]/page.js"  
   ],
   "exclude": [
     "node_modules"

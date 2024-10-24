@@ -34,7 +34,7 @@ export default function Home() {
       {session ? (
         <div className="flex flex-col items-center gap-4">
           <p>Signed in as {session.user?.email}</p>
-          <Link href="/workflows" className="mt-4">
+          <Link href="/dashboard" className="mt-4">
             <Button>View Dashboard</Button>
           </Link>
           <Button variant="outline" onClick={() => signOut()}>Sign out</Button>
