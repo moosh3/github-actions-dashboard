@@ -95,139 +95,141 @@ const StatusBadge = ({ status }: { status: string }) => {
   )
 }
 
-export default function WorkflowRun({ runId, repoId }: { runId: string, repoId: string }) {
+export default function WorkflowRun({ runId, repoId }: { runId: string; repoId: string }) {
   const [activeTab, setActiveTab] = useState("jobs")
 
   return (
-    <Card className="w-full max-w-4xl">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>{workflowRun.name}</CardTitle>
-            <CardDescription>
-              Run #{workflowRun.runNumber} • Attempt #{workflowRun.runAttempt}
-            </CardDescription>
+    <div className="container mx-auto py-6">
+      <Card className="w-full">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>{workflowRun.name}</CardTitle>
+              <CardDescription>
+                Run #{workflowRun.runNumber} • Attempt #{workflowRun.runAttempt}
+              </CardDescription>
+            </div>
+            <StatusBadge status={workflowRun.status} />
           </div>
-          <StatusBadge status={workflowRun.status} />
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="mb-4 flex items-center space-x-4">
-          <Avatar>
-            <AvatarImage src={workflowRun.triggeredBy.avatarUrl} alt={workflowRun.triggeredBy.login} />
-            <AvatarFallback>{workflowRun.triggeredBy.login.slice(0, 2).toUpperCase()}</AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="text-sm font-medium">Triggered by {workflowRun.triggeredBy.login}</p>
-            <p className="text-xs text-gray-500">
-              Started: {format(new Date(workflowRun.createdAt), "PPpp")}
-            </p>
-            <p className="text-xs text-gray-500">
-              Finished: {format(new Date(workflowRun.updatedAt), "PPpp")}
-            </p>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-4 flex items-center space-x-4">
+            <Avatar>
+              <AvatarImage src={workflowRun.triggeredBy.avatarUrl} alt={workflowRun.triggeredBy.login} />
+              <AvatarFallback>{workflowRun.triggeredBy.login.slice(0, 2).toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="text-sm font-medium">Triggered by {workflowRun.triggeredBy.login}</p>
+              <p className="text-xs text-gray-500">
+                Started: {format(new Date(workflowRun.createdAt), "PPpp")}
+              </p>
+              <p className="text-xs text-gray-500">
+                Finished: {format(new Date(workflowRun.updatedAt), "PPpp")}
+              </p>
+            </div>
           </div>
-        </div>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="jobs">Jobs</TabsTrigger>
-            <TabsTrigger value="artifacts">Artifacts</TabsTrigger>
-            <TabsTrigger value="runner">Runner</TabsTrigger>
-          </TabsList>
-          <TabsContent value="jobs">
-            {workflowRun.jobs.map((job) => (
-              <Collapsible key={job.id} className="mb-4">
-                <CollapsibleTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between">
-                    <span>{job.name}</span>
-                    <StatusBadge status={job.status} />
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-2">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-12">#</TableHead>
-                        <TableHead>Step</TableHead>
-                        <TableHead className="w-24">Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {job.steps.map((step) => (
-                        <TableRow key={step.number}>
-                          <TableCell>{step.number}</TableCell>
-                          <TableCell>{step.name}</TableCell>
-                          <TableCell>
-                            <StatusBadge status={step.conclusion} />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  <div className="mt-2 flex justify-end space-x-2">
-                    <Button size="sm" variant="outline">
-                      <FileText className="mr-2 h-4 w-4" />
-                      View Logs
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="jobs">Jobs</TabsTrigger>
+              <TabsTrigger value="artifacts">Artifacts</TabsTrigger>
+              <TabsTrigger value="runner">Runner</TabsTrigger>
+            </TabsList>
+            <TabsContent value="jobs">
+              {workflowRun.jobs.map((job) => (
+                <Collapsible key={job.id} className="mb-4">
+                  <CollapsibleTrigger asChild>
+                    <Button variant="outline" className="w-full justify-between">
+                      <span>{job.name}</span>
+                      <StatusBadge status={job.status} />
                     </Button>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            ))}
-          </TabsContent>
-          <TabsContent value="artifacts">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Size</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="w-24">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {workflowRun.artifacts.map((artifact) => (
-                  <TableRow key={artifact.name}>
-                    <TableCell>{artifact.name}</TableCell>
-                    <TableCell>{(artifact.size / 1024 / 1024).toFixed(2)} MB</TableCell>
-                    <TableCell>
-                      <Badge variant={artifact.expired ? "destructive" : "default"}>
-                        {artifact.expired ? "Expired" : "Available"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Button size="sm" variant="outline" disabled={artifact.expired}>
-                        <FileDown className="mr-2 h-4 w-4" />
-                        Download
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-2">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-12">#</TableHead>
+                          <TableHead>Step</TableHead>
+                          <TableHead className="w-24">Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {job.steps.map((step) => (
+                          <TableRow key={step.number}>
+                            <TableCell>{step.number}</TableCell>
+                            <TableCell>{step.name}</TableCell>
+                            <TableCell>
+                              <StatusBadge status={step.conclusion} />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                    <div className="mt-2 flex justify-end space-x-2">
+                      <Button size="sm" variant="outline">
+                        <FileText className="mr-2 h-4 w-4" />
+                        View Logs
                       </Button>
-                    </TableCell>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              ))}
+            </TabsContent>
+            <TabsContent value="artifacts">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Size</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="w-24">Action</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TabsContent>
-          <TabsContent value="runner">
-            <Card>
-              <CardHeader>
-                <CardTitle>Runner Details</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>Runner: GitHub-hosted runner</p>
-                <p>OS: ubuntu-latest</p>
-                <p>Specification: 2-core CPU, 7 GB of RAM, 14 GB of SSD space</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-      <CardFooter className="justify-between">
-        <Button variant="outline">
-          <FileText className="mr-2 h-4 w-4" />
-          Full Logs
-        </Button>
-        <Button variant="outline">
-          <Info className="mr-2 h-4 w-4" />
-          Run Details
-        </Button>
-      </CardFooter>
-    </Card>
+                </TableHeader>
+                <TableBody>
+                  {workflowRun.artifacts.map((artifact) => (
+                    <TableRow key={artifact.name}>
+                      <TableCell>{artifact.name}</TableCell>
+                      <TableCell>{(artifact.size / 1024 / 1024).toFixed(2)} MB</TableCell>
+                      <TableCell>
+                        <Badge variant={artifact.expired ? "destructive" : "default"}>
+                          {artifact.expired ? "Expired" : "Available"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button size="sm" variant="outline" disabled={artifact.expired}>
+                          <FileDown className="mr-2 h-4 w-4" />
+                          Download
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TabsContent>
+            <TabsContent value="runner">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Runner Details</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>Runner: GitHub-hosted runner</p>
+                  <p>OS: ubuntu-latest</p>
+                  <p>Specification: 2-core CPU, 7 GB of RAM, 14 GB of SSD space</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+        <CardFooter className="justify-between">
+          <Button variant="outline">
+            <FileText className="mr-2 h-4 w-4" />
+            Full Logs
+          </Button>
+          <Button variant="outline">
+            <Info className="mr-2 h-4 w-4" />
+            Run Details
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
   )
 }
