@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { signOut, useSession } from "next-auth/react"
 import { Home, GitFork, User, LogOut } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,

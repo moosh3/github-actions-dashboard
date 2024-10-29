@@ -4,6 +4,9 @@ import { useState } from "react"
 import { CheckCircle2, Clock, FileDown, FileText, Info, XCircle } from "lucide-react"
 import { format } from "date-fns"
 
+import { useWorkflowRun } from "@/lib/hooks"
+import { Artifact, Job, TaskStep } from "@/types"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -97,6 +100,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 
 export default function WorkflowRun({ runId, repoId }: { runId: string; repoId: string }) {
   const [activeTab, setActiveTab] = useState("jobs")
+  const { workflowRun, isLoading, isError } = useWorkflowRun(runId, repoId)
 
   return (
     <div className="container mx-auto py-6">
@@ -135,7 +139,7 @@ export default function WorkflowRun({ runId, repoId }: { runId: string; repoId: 
               <TabsTrigger value="runner">Runner</TabsTrigger>
             </TabsList>
             <TabsContent value="jobs">
-              {workflowRun.jobs.map((job) => (
+              {workflowRun.jobs.map((job: Job) => (
                 <Collapsible key={job.id} className="mb-4">
                   <CollapsibleTrigger asChild>
                     <Button variant="outline" className="w-full justify-between">
@@ -153,7 +157,7 @@ export default function WorkflowRun({ runId, repoId }: { runId: string; repoId: 
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {job.steps.map((step) => (
+                        {job.steps.map((step: TaskStep) => (
                           <TableRow key={step.number}>
                             <TableCell>{step.number}</TableCell>
                             <TableCell>{step.name}</TableCell>
@@ -185,7 +189,7 @@ export default function WorkflowRun({ runId, repoId }: { runId: string; repoId: 
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {workflowRun.artifacts.map((artifact) => (
+                  {workflowRun.artifacts.map((artifact: Artifact) => (
                     <TableRow key={artifact.name}>
                       <TableCell>{artifact.name}</TableCell>
                       <TableCell>{(artifact.size / 1024 / 1024).toFixed(2)} MB</TableCell>

@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import { AuthProvider } from './auth/providers'
 import { NavMenu } from '@/components/nav-menu'
 
+
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
