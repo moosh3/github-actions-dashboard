@@ -4,7 +4,7 @@ import { useState } from "react"
 import { CheckCircle2, Clock, FileDown, FileText, Info, XCircle } from "lucide-react"
 import { format } from "date-fns"
 
-import { useWorkflowRun } from "@/lib/hooks"
+import { useWorkflowRun } from "@/hooks/use-workflow-runs"
 import { Artifact, Job, TaskStep } from "@/types"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
