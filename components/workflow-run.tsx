@@ -98,9 +98,9 @@ const StatusBadge = ({ status }: { status: string }) => {
   )
 }
 
-export default function WorkflowRun({ runId, repoId }: { runId: string; repoId: string }) {
+export default function WorkflowRun({ owner, repo, runId }: { owner: string, repo: string, runId: number;  }) {
   const [activeTab, setActiveTab] = useState("jobs")
-  const { workflowRun, isLoading, isError } = useWorkflowRun(runId, repoId)
+  const { workflowRun, isLoading, isError } = useWorkflowRun(owner, repo, runId)
 
   return (
     <div className="container mx-auto py-6">

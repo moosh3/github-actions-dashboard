@@ -269,12 +269,19 @@ export default function WorkflowList({ repoId }: GitHubActionsDashboardProps) {
                   {filteredActions.map((action) => (
                     <TableRow key={action.id}>
                       <TableCell className="font-medium">
-                        <a
-                          onClick={() => router.push(`/workflows/${action.id}?repoId=${repoId}&workflowId=${action.id}&workflowName=${action.name}`)}
-                          className="text-blue-500 hover:underline cursor-pointer"
+                        <Link 
+                          href={{
+                            pathname: `/workflows/`,
+                            query: {
+                              owner: repoId,
+                              repo: repoName,
+                              workflowId: action.id,
+                            }
+                          }}
+                          className="text-blue-500 hover:underline"
                         >
                           {action.name}
-                        </a>
+                        </Link>
                       </TableCell>
                       <TableCell>
                         <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${

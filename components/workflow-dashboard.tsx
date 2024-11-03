@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Calendar, Clock, GitBranch, GitCommit, Link, MoreHorizontal } from "lucide-react"
+import { Calendar, Clock, GitBranch, GitCommit, MoreHorizontal } from "lucide-react"
+import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -118,13 +119,20 @@ export default function WorkflowDashboard() {
               {filteredRuns.map((run) => (
                 <TableRow key={run.id}>
                   <TableCell className="font-medium">
-                        <a
-                          onClick={() => router.push(`/workflows/${run.id}?repoId=${run.id}&workflowId=${run.id}&workflowName=${run.name}`)}
-                          className="text-blue-500 hover:underline cursor-pointer"
-                        >
-                          {run.name}
-                        </a>
-                      </TableCell>
+                  <Link 
+                    href={{
+                    pathname: `/workflows/`,
+                    query: {
+                        repoId: run.repository,
+                        workflowId: run.id,
+                        workflowName: run.name
+                    }
+                    }}
+                    className="text-blue-500 hover:underline"
+                >
+                    {run.name}
+                </Link>
+                  </TableCell>
                   <TableCell>{run.repository}</TableCell>
                   <TableCell>
                     <div className="flex items-center">

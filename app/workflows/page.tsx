@@ -1,5 +1,5 @@
 import AuthWrapper from '@/components/auth-wrapper'
-import WorkflowRun from '@/components/workflow-run'
+import WorkflowDetails from '@/components/workflow-details'
 
 export default function WorkflowPage({
   searchParams,
@@ -8,14 +8,14 @@ export default function WorkflowPage({
 }) {
   const owner = searchParams.owner as string
   const repo = searchParams.repo as string
-  const runId = searchParams.runId as number
+  const workflowId = searchParams.workflowId as number
 
   return (
     <AuthWrapper>
-      <WorkflowRun 
+      <WorkflowDetails 
         owner={owner} 
         repo={repo} 
-        runId={runId} 
+        workflowId={workflowId} 
       />
     </AuthWrapper>
   )

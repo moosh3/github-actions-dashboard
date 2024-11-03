@@ -98,18 +98,11 @@ const repositories = [
   { id: "4", name: "data-processor" },
 ]
 
-export default function WorkflowDetails({ repoId, workflowId, workflowName }: { repoId: string, workflowId: string, workflowName: string }) {
+export default function WorkflowDetails({ owner, repo, workflowId }: { owner: string, repo: string, workflowId: number }) {
   //const router = useRouter()
   const { data: session } = useSession()
   const [timeRange, setTimeRange] = useState("7d")
   
-  const getRepoNameById = (id: string) => {
-    const repo = repositories.find(repo => repo.id === id)
-    return repo ? repo.name : "Unknown Repository"
-  }
-
-  const repoName = getRepoNameById(repoId)
-
   return (
     
     <div className="container mx-auto py-10">
@@ -125,7 +118,7 @@ export default function WorkflowDetails({ repoId, workflowId, workflowName }: { 
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href={`/repositories/${repoId}`}>{repoName}</BreadcrumbLink>
+            <BreadcrumbLink href={`/repositories/${owner}/${repo}`}>${repo}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -288,7 +281,17 @@ export default function WorkflowDetails({ repoId, workflowId, workflowName }: { 
             {workflowRuns.map((run) => (
               <TableRow key={run.id}>
                 <TableCell className="font-medium">
-                  <Link href={`/workflows/${repoId}/runs/${run.id}`} className="text-blue-600 hover:underline">
+                <Link 
+                    href={{
+                      pathname: `/workflows/`,
+                      query: {
+                        owner: owner,
+                        repo: repo,
+                        workflowId: workflowId,
+                      }
+                    }}
+                    className="text-blue-500 hover:underline"
+                  >
                     #{run.runNumber}
                   </Link>
                 </TableCell>
